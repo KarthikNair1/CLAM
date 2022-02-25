@@ -392,6 +392,9 @@ class WholeSlideImage(object):
                     init = False
                 else:
                     save_hdf5(save_path_hdf5, asset_dict, mode='a')
+            
+            if kwargs['histoqc_mask_dir'] is not None:
+                break
 
         return self.hdf5_file
 
@@ -408,7 +411,7 @@ class WholeSlideImage(object):
         histoqc_mask = np.asarray(Image.open(f'{histoqc_mask_dir}/{slide_id}/{slide_id}_mask_use.png'))
         
         print('ok')
-        
+             
         img_w, img_h = self.level_dim[0]
         
         scale_factor_w = round(img_w / histoqc_mask.shape[1])
@@ -424,6 +427,12 @@ class WholeSlideImage(object):
             stop_y = min(start_y+h, img_h-ref_patch_size[1]+1)
             stop_x = min(start_x+w, img_w-ref_patch_size[0]+1)
         
+        if histoqc_mask_dir is not None:
+            start_x = 0
+            start_y = 0
+            stop_x = img_w-ref_patch_size[0]+1
+            stop_y = img_h-ref_patch_size[1]+1
+
         print("Bounding Box:", start_x, start_y, w, h)
         print("Contour Area:", cv2.contourArea(cont))
 

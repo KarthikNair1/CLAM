@@ -31,7 +31,7 @@ def segment(WSI_object, seg_params, filter_params):
 def patching(WSI_object, slide_id, **kwargs):
 	### Start Patch Timer
 	start_time = time.time()
-
+	
 	# Patch
 	file_path = WSI_object.process_contours(slide_id = slide_id, **kwargs)
 
