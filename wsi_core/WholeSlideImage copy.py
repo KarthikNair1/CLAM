@@ -14,7 +14,7 @@ import h5py
 import math
 from wsi_core.wsi_utils import savePatchIter_bag_hdf5, initialize_hdf5_bag, coord_generator, save_hdf5, sample_indices, screen_coords, isBlackPatch, isWhitePatch, to_percentiles
 import itertools
-from wsi_core.util_classes import isInContourV1, isInContourV2, isInContourV3_Easy, isInContourV3_Hard, Contour_Checking_fn, isInHistoQCMask
+from wsi_core.util_classes import isInContourV1, isInContourV2, isInContourV3_Easy, isInContourV3_Hard, Contour_Checking_fn
 from utils.file_utils import load_pkl, save_pkl
 
 Image.MAX_IMAGE_PIXELS = 933120000
@@ -239,7 +239,7 @@ class WholeSlideImage(object):
         return img
 
 
-    def createPatches_bag_hdf5(self, save_path, patch_leaavel=0, patch_size=256, step_size=256, save_coord=True, **kwargs):
+    def createPatches_bag_hdf5(self, save_path, patch_level=0, patch_size=256, step_size=256, save_coord=True, **kwargs):
         contours = self.contours_tissue
         contour_holes = self.holes_tissue
 
@@ -315,11 +315,6 @@ class WholeSlideImage(object):
                 if not self.isInContours(cont_check_fn, (x,y), self.holes_tissue[cont_idx], ref_patch_size[0]): #point not inside contour and its associated holes
                     continue    
                 
-                #if not good((x,y), ref_patch_size[0]):
-                    # return true if patch is tissue, i.e. corresponds to tissue in HistoQC mask
-
-
-
                 count+=1
                 patch_PIL = self.wsi.read_region((x,y), patch_level, (patch_size, patch_size)).convert('RGB')
                 if custom_downsample > 1:
@@ -373,7 +368,7 @@ class WholeSlideImage(object):
         
         return level_downsamples
 
-    def process_contours(self, save_path, slide_id, patch_level=0, patch_size=256, step_size=256, **kwargs):
+    def process_contours(self, save_path, patch_level=0, patch_size=256, step_size=256, **kwargs):
         save_path_hdf5 = os.path.join(save_path, str(self.name) + '.h5')
         print("Creating patches for: ", self.name, "...",)
         elapsed = time.time()
@@ -385,7 +380,7 @@ class WholeSlideImage(object):
             if (idx + 1) % fp_chunk_size == fp_chunk_size:
                 print('Processing contour {}/{}'.format(idx, n_contours))
             
-            asset_dict, attr_dict = self.process_contour(cont, self.holes_tissue[idx], patch_level, save_path, slide_id, patch_size, step_size, **kwargs)
+            asset_dict, attr_dict = self.process_contour(cont, self.holes_tissue[idx], patch_level, save_path, patch_size, step_size, **kwargs)
             if len(asset_dict) > 0:
                 if init:
                     save_hdf5(save_path_hdf5, asset_dict, attr_dict, mode='w')
@@ -396,27 +391,14 @@ class WholeSlideImage(object):
         return self.hdf5_file
 
 
-    def process_contour(self, cont, contour_holes, patch_level, save_path, slide_id, patch_size = 256, step_size = 256,
-        contour_fn='four_pt', use_padding=True, top_left=None, bot_right=None, histoqc_mask_dir = None):
+    def process_contour(self, cont, contour_holes, patch_level, save_path, patch_size = 256, step_size = 256,
+        contour_fn='four_pt', use_padding=True, top_left=None, bot_right=None):
         start_x, start_y, w, h = cv2.boundingRect(cont) if cont is not None else (0, 0, self.level_dim[patch_level][0], self.level_dim[patch_level][1])
 
         patch_downsample = (int(self.level_downsamples[patch_level][0]), int(self.level_downsamples[patch_level][1]))
         ref_patch_size = (patch_size*patch_downsample[0], patch_size*patch_downsample[1])
-
-        # load histoqc mask
-        assert histoqc_mask_dir is not None
-        histoqc_mask = np.asarray(Image.open(f'{histoqc_mask_dir}/{slide_id}/{slide_id}_mask_use.png'))
-        
-        print('ok')
         
         img_w, img_h = self.level_dim[0]
-        
-        scale_factor_w = round(img_w / histoqc_mask.shape[1])
-        scale_factor_h = round(img_h / histoqc_mask.shape[0])
-        #if scale_factor_w != scale_factor_h:
-        #    print('vertical and horizontal histoqc scale factors not equal!!')
-        #    assert False
-        #assert scale_factor_w == scale_factor_h
         if use_padding:
             stop_y = start_y+h
             stop_x = start_x+w
@@ -456,8 +438,8 @@ class WholeSlideImage(object):
         else:
             assert isinstance(contour_fn, Contour_Checking_fn)
             cont_check_fn = contour_fn
-        cont_check_fn = isInHistoQCMask(histoqc_mask, scale_factor_w, scale_factor_h, patch_size, percent_thresh = 0.85)
 
+        
         step_size_x = step_size * patch_downsample[0]
         step_size_y = step_size * patch_downsample[1]
 

@@ -84,7 +84,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 		self.patient_cls_ids = [[] for i in range(self.num_classes)]		
 		for i in range(self.num_classes):
 			self.patient_cls_ids[i] = np.where(self.patient_data['label'] == i)[0]
-
+		
 		# store ids corresponding each class at the slide level
 		self.slide_cls_ids = [[] for i in range(self.num_classes)]
 		for i in range(self.num_classes):
@@ -162,7 +162,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 			settings.update({'cls_ids' : self.patient_cls_ids, 'samples': len(self.patient_data['case_id'])})
 		else:
 			settings.update({'cls_ids' : self.slide_cls_ids, 'samples': len(self.slide_data)})
-
+		
 		self.split_gen = generate_split(**settings)
 
 	def set_splits(self,start_from=None):

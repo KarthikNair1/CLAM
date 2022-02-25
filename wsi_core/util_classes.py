@@ -50,6 +50,34 @@ class Contour_Checking_fn(object):
 	def __call__(self, pt): 
 		raise NotImplementedError
 
+class isInHistoQCMask(Contour_Checking_fn):
+	def __init__(self, mask, scale_factor_w, scale_factor_h, patch_size, percent_thresh = 0.85):
+		self.mask = mask
+		self.scale_factor_w = scale_factor_w
+		self.scale_factor_h = scale_factor_h
+		self.patch_size = patch_size
+		self.percent_thresh = percent_thresh
+
+	def __call__(self, pt): 
+		top = pt[1] // self.scale_factor_h
+		bot = (pt[1] + self.patch_size) // self.scale_factor_h
+		left = pt[0] // self.scale_factor_w
+		right = (pt[0] + self.patch_size) // self.scale_factor_w
+		
+		if not (top >=0 and left >= 0 and top <= self.mask.shape[0] and left <= self.mask.shape[1]):
+			print('err in histoqc mask segmentation due to out of bounds coords')
+			assert False
+
+		# handle case where tile hangs off edge of slide
+		bot = min(bot, self.mask.shape[0])
+		right = min(right, self.mask.shape[1])
+
+		fraction_good = (self.mask[top:bot, left:right]/255).mean() # divide by 255 since included tiles have value 255 while excluded ones have value 0
+		if fraction_good >= self.percent_thresh:
+			return 1
+		else:
+			return 0
+
 class isInContourV1(Contour_Checking_fn):
 	def __init__(self, contour):
 		self.cont = contour

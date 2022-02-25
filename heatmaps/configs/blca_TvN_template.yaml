@@ -1,4 +1,4 @@
-# CUDA_VISIBLE_DEVICES=0,1 python create_heatmaps.py --config config_template.yaml
+# CUDA_VISIBLE_DEVICES=0 python3 create_heatmaps.py --config blca_TvN_template.yaml
 --- 
 exp_arguments:
   # number of classes
@@ -9,31 +9,31 @@ exp_arguments:
   raw_save_dir: heatmaps/heatmap_raw_results
   # where to save final heatmaps
   production_save_dir: heatmaps/heatmap_production_results
-  batch_size: 384
+  batch_size: 128
 data_arguments: 
   # where is data stored; can be a single str path or a dictionary of key, data_dir mapping
-  data_dir: heatmaps/demo/slides/
+  data_dir: '/mnt/disks/msk/blca/slides/ffpe'
   # column name for key in data_dir (if a dict mapping is used)
   data_dir_key: source
   # csv list containing slide_ids (can additionally have seg/patch paramters, class labels, etc.)
-  process_list: heatmap_demo_dataset.csv
+  process_list: heatmap_blca_dataset.csv
   # preset file for segmentation/patching
-  preset: presets/bwh_biopsy.csv
+  preset: /mnt/disks/msk/core/CLAM/presets/tcga.csv
   # file extention for slides
   slide_ext: .svs
   # label dictionary for str: interger mapping (optional)
   label_dict:
-    LUAD: 0
-    LSCC: 1                        
+    normal_tissue: 0
+    tumor_tissue: 1                        
 patching_arguments:
   # arguments for patching
-  patch_size: 256
+  patch_size: 512
   overlap: 0.5
   patch_level: 0
   custom_downsample: 1
 model_arguments: 
   # arguments for initializing model from checkpoint
-  ckpt_path: heatmaps/demo/ckpts/s_0_checkpoint.pt
+  ckpt_path: /mnt/disks/msk/core/CLAM/results/task_1_tumor_vs_normal_CLAM_test3_s182/s_0_checkpoint.pt
   model_type: clam_sb # see utils/eval_utils/
   initiate_fn: initiate_model # see utils/eval_utils/
   model_size: small
@@ -70,7 +70,7 @@ sample_arguments:
   samples:
     - name: "topk_high_attention"
       sample: true
-      seed: 1
+      seed: 182
       k: 15 # save top-k patches
       mode: topk
 

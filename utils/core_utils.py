@@ -8,6 +8,10 @@ from models.model_clam import CLAM_MB, CLAM_SB
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
+import wandb
+
+import sys
+sys.path.append('../smooth-topk')
 
 class Accuracy_Logger(object):
     """Accuracy logger"""
@@ -97,6 +101,8 @@ def train(datasets, cur, args):
         os.mkdir(writer_dir)
 
     if args.log_data:
+        os.environ['WANDB_DIR'] = writer_dir
+        wandb.init(sync_tensorboard=True)
         from tensorboardX import SummaryWriter
         writer = SummaryWriter(writer_dir, flush_secs=15)
 
@@ -451,7 +457,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
                 aucs.append(float('nan'))
 
         auc = np.nanmean(np.array(aucs))
-
+    
     print('\nVal Set, val_loss: {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
     if inst_count > 0:
         val_inst_loss /= inst_count

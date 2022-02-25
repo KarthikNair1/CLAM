@@ -12,7 +12,7 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed (default: 1)')
 parser.add_argument('--k', type=int, default=10,
                     help='number of splits (default: 10)')
-parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal', 'task_2_tumor_subtyping'])
+parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal', 'task_2_histologic_subtype'])
 parser.add_argument('--val_frac', type=float, default= 0.1,
                     help='fraction of labels for validation (default: 0.1)')
 parser.add_argument('--test_frac', type=float, default= 0.1,
@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 if args.task == 'task_1_tumor_vs_normal':
     args.n_classes=2
-    dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/tumor_vs_normal_dummy_clean.csv',
+    dataset = Generic_WSI_Classification_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_TvN_labels.csv',
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
@@ -30,15 +30,15 @@ if args.task == 'task_1_tumor_vs_normal':
                             patient_strat=True,
                             ignore=[])
 
-elif args.task == 'task_2_tumor_subtyping':
-    args.n_classes=3
-    dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/tumor_subtyping_dummy_clean.csv',
+elif args.task == 'task_2_histologic_subtype':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_histologic_subtype_labels.csv',
+                            data_dir= '/mnt/disks/msk/clam/blca',
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
-                            label_dict = {'subtype_1':0, 'subtype_2':1, 'subtype_3':2},
+                            label_dict = {'papillary':0, 'non-papillary':1},
                             patient_strat= True,
-                            patient_voting='maj',
                             ignore=[])
 
 else:

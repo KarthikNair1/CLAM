@@ -28,12 +28,12 @@ def segment(WSI_object, seg_params, filter_params):
 	seg_time_elapsed = time.time() - start_time   
 	return WSI_object, seg_time_elapsed
 
-def patching(WSI_object, **kwargs):
+def patching(WSI_object, slide_id, **kwargs):
 	### Start Patch Timer
 	start_time = time.time()
 
 	# Patch
-	file_path = WSI_object.process_contours(**kwargs)
+	file_path = WSI_object.process_contours(slide_id = slide_id, **kwargs)
 
 
 	### Stop Patch Timer
@@ -41,7 +41,7 @@ def patching(WSI_object, **kwargs):
 	return file_path, patch_time_elapsed
 
 
-def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_dir, 
+def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_dir, histoqc_mask_dir,
 				  patch_size = 256, step_size = 256, 
 				  seg_params = {'seg_level': -1, 'sthresh': 8, 'mthresh': 7, 'close': 4, 'use_otsu': False,
 				  'keep_ids': 'none', 'exclude_ids': 'none'},
@@ -192,8 +192,8 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
 		patch_time_elapsed = -1 # Default time
 		if patch:
 			current_patch_params.update({'patch_level': patch_level, 'patch_size': patch_size, 'step_size': step_size, 
-										 'save_path': patch_save_dir})
-			file_path, patch_time_elapsed = patching(WSI_object = WSI_object,  **current_patch_params,)
+										 'save_path': patch_save_dir, 'histoqc_mask_dir' : histoqc_mask_dir})
+			file_path, patch_time_elapsed = patching(WSI_object = WSI_object,  **current_patch_params, slide_id=slide)
 		
 		stitch_time_elapsed = -1
 		if stitch:
@@ -242,6 +242,8 @@ parser.add_argument('--patch_level', type=int, default=0,
 					help='downsample level at which to patch')
 parser.add_argument('--process_list',  type = str, default=None,
 					help='name of list of images to process with parameters (.csv)')
+parser.add_argument('--segmentation_mask_dir', type=str, default=None,
+					help = 'directory containing histoqc masks to override CLAM segmentation')
 
 if __name__ == '__main__':
 	args = parser.parse_args()
@@ -265,7 +267,8 @@ if __name__ == '__main__':
 				   'save_dir': args.save_dir,
 				   'patch_save_dir': patch_save_dir, 
 				   'mask_save_dir' : mask_save_dir, 
-				   'stitch_save_dir': stitch_save_dir} 
+				   'stitch_save_dir': stitch_save_dir,
+				   'histoqc_mask_dir': args.segmentation_mask_dir} 
 
 	for key, val in directories.items():
 		print("{} : {}".format(key, val))

@@ -49,7 +49,7 @@ class Wsi_Region(Dataset):
     def __init__(self, wsi_object, top_left=None, bot_right=None, level=0, 
                  patch_size = (256, 256), step_size=(256, 256), 
                  contour_fn='four_pt_hard',
-                 t=None, custom_downsample=1, use_center_shift=False):
+                 t=None, custom_downsample=1, use_center_shift=False, slide_id = None, histoqc_mask_dir = None):
         
         self.custom_downsample = custom_downsample
 
@@ -92,9 +92,9 @@ class Wsi_Region(Dataset):
         for cont_idx, contour in enumerate(wsi_object.contours_tissue): 
             print('processing {}/{} contours'.format(cont_idx, len(wsi_object.contours_tissue)))
             cont_check_fn = get_contour_check_fn(contour_fn, contour, self.ref_size[0], center_shift)
-            coord_results, _ = wsi_object.process_contour(contour, wsi_object.holes_tissue[cont_idx], level, '', 
+            coord_results, _ = wsi_object.process_contour(contour, wsi_object.holes_tissue[cont_idx], level, '', slide_id,
                             patch_size = patch_size[0], step_size = step_size[0], contour_fn=cont_check_fn,
-                            use_padding=True, top_left = top_left, bot_right = bot_right)
+                            use_padding=True, top_left = top_left, bot_right = bot_right, histoqc_mask_dir = histoqc_mask_dir)
             if len(coord_results) > 0:
                 filtered_coords.append(coord_results['coords'])
         

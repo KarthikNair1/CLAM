@@ -283,7 +283,7 @@ if __name__ == '__main__':
 		features_path = os.path.join(r_slide_save_dir, slide_id+'.pt')
 		h5_path = os.path.join(r_slide_save_dir, slide_id+'.h5')
 	
-
+		print(f"YELLOW: {patch_args}")
 		##### check if h5_features_file exists ######
 		if not os.path.isfile(h5_path) :
 			_, _, wsi_object = compute_from_patches(wsi_object=wsi_object, 
@@ -291,7 +291,8 @@ if __name__ == '__main__':
 											feature_extractor=feature_extractor, 
 											batch_size=exp_args.batch_size, **blocky_wsi_kwargs, 
 											attn_save_path=None, feat_save_path=h5_path, 
-											ref_scores=None)				
+											ref_scores=None, slide_id = slide_name,
+											histoqc_mask_dir = patch_args.segmentation_mask_dir)				
 		
 		##### check if pt_features_file exists ######
 		if not os.path.isfile(features_path):
@@ -369,7 +370,7 @@ if __name__ == '__main__':
 		
 		if heatmap_args.calc_heatmap:
 			compute_from_patches(wsi_object=wsi_object, clam_pred=Y_hats[0], model=model, feature_extractor=feature_extractor, batch_size=exp_args.batch_size, **wsi_kwargs, 
-								attn_save_path=save_path,  ref_scores=ref_scores)
+								attn_save_path=save_path,  ref_scores=ref_scores, histoqc_mask_dir = patch_args.segmentation_mask_dir, slide_id = slide_name)
 
 		if not os.path.isfile(save_path):
 			print('heatmap {} not found'.format(save_path))

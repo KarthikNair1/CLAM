@@ -101,6 +101,7 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 		indices = np.setdiff1d(indices, custom_test_ids)
 
 	np.random.seed(seed)
+	print(f'val num: {val_num}')
 	for i in range(n_splits):
 		all_val_ids = []
 		all_test_ids = []
@@ -110,6 +111,7 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 			all_test_ids.extend(custom_test_ids)
 
 		for c in range(len(val_num)):
+
 			possible_indices = np.intersect1d(cls_ids[c], indices) #all indices of this class
 			val_ids = np.random.choice(possible_indices, val_num[c], replace = False) # validation ids
 
@@ -121,7 +123,7 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 				test_ids = np.random.choice(remaining_ids, test_num[c], replace = False)
 				remaining_ids = np.setdiff1d(remaining_ids, test_ids)
 				all_test_ids.extend(test_ids)
-
+			
 			if label_frac == 1:
 				sampled_train_ids.extend(remaining_ids)
 			
