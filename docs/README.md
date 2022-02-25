@@ -1,4 +1,14 @@
 CLAM <img src="clam-logo.png" width="280px" align="right" />
+
+
+CLAM, but accepting histoqc segmentation mask. Only necessary change is specifying --segmentation_mask_dir when calling create_patches_fp, and adding it to the config file for create_heatmaps. The directory structure assumed is:
+
+segmentation_mask_dir/{slide_id}.svs/{slide_id}.svs_mask_use.png
+
+
+
+
+
 ===========
 Data Efficient and Weakly Supervised Computational Pathology on Whole Slide Images.
 *Nature Biomedical Engineering*
