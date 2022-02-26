@@ -381,20 +381,28 @@ class WholeSlideImage(object):
         print("Total number of contours to process: ", n_contours)
         fp_chunk_size = math.ceil(n_contours * 0.05)
         init = True
-        for idx, cont in enumerate(self.contours_tissue):
-            if (idx + 1) % fp_chunk_size == fp_chunk_size:
-                print('Processing contour {}/{}'.format(idx, n_contours))
-            
-            asset_dict, attr_dict = self.process_contour(cont, self.holes_tissue[idx], patch_level, save_path, slide_id, patch_size, step_size, **kwargs)
+
+        if kwargs['histoqc_mask_dir'] is not None: # histoqc masking
+            print('Processing histoqc mask.')
+            asset_dict, attr_dict = self.process_contour(None, None, patch_level, save_path, slide_id, patch_size, step_size, **kwargs)
             if len(asset_dict) > 0:
                 if init:
                     save_hdf5(save_path_hdf5, asset_dict, attr_dict, mode='w')
                     init = False
                 else:
                     save_hdf5(save_path_hdf5, asset_dict, mode='a')
-            
-            if kwargs['histoqc_mask_dir'] is not None:
-                break
+        else:
+            for idx, cont in enumerate(self.contours_tissue):
+                if (idx + 1) % fp_chunk_size == fp_chunk_size:
+                    print('Processing contour {}/{}'.format(idx, n_contours))
+                
+                asset_dict, attr_dict = self.process_contour(cont, self.holes_tissue[idx], patch_level, save_path, slide_id, patch_size, step_size, **kwargs)
+                if len(asset_dict) > 0:
+                    if init:
+                        save_hdf5(save_path_hdf5, asset_dict, attr_dict, mode='w')
+                        init = False
+                    else:
+                        save_hdf5(save_path_hdf5, asset_dict, mode='a')
 
         return self.hdf5_file
 
@@ -434,7 +442,8 @@ class WholeSlideImage(object):
             stop_y = img_h-ref_patch_size[1]+1
 
         print("Bounding Box:", start_x, start_y, w, h)
-        print("Contour Area:", cv2.contourArea(cont))
+        if cont is not None:
+            print("Contour Area:", cv2.contourArea(cont))
 
         if bot_right is not None:
             stop_y = min(bot_right[1], stop_y)
