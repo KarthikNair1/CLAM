@@ -1,0 +1,1 @@
+{'task': 'task_5_ff_tvn', 'split': 'all', 'save_dir': './eval_results/EVAL_task_5_ff_tvn_BLCA_TEST', 'models_dir': './results/task_5_ff_tvn_100_alldata_s182', 'model_type': 'clam_sb', 'drop_out': True, 'model_size': 'small'}

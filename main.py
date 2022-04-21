@@ -97,7 +97,7 @@ parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mi
 parser.add_argument('--exp_code', type=str, help='experiment code for saving results')
 parser.add_argument('--weighted_sample', action='store_true', default=False, help='enable weighted sampling')
 parser.add_argument('--model_size', type=str, choices=['small', 'big'], default='small', help='size of model, does not affect mil')
-parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal',  'task_2_histologic_subtype'])
+parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal',  'task_2_histologic_subtype', 'task_3_txn_subtype', 'task_4_upstage', 'task_5_ff_tvn'])
 ### CLAM specific options
 parser.add_argument('--no_inst_cluster', action='store_true', default=False,
                      help='disable instance-level clustering')
@@ -175,7 +175,37 @@ elif args.task == 'task_2_histologic_subtype':
 
     if args.model_type in ['clam_sb', 'clam_mb']:
         assert args.subtyping 
-        
+elif args.task == 'task_3_txn_subtype':
+    args.n_classes=5
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_txn_subtype_labels.csv',
+                            data_dir= args.data_root_dir,
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'Luminal Papillary': 0, 'Luminal Infiltrated': 1, 'Luminal': 2, 'Basal Squamous': 3, 'Neuronal': 4},
+                            patient_strat= True,
+                            ignore=[])
+elif args.task == 'task_4_upstage':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_upstaged_labels.csv',
+                            data_dir= args.data_root_dir,
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'not_upstaged':0, 'upstaged':1},
+                            patient_strat= True,
+                            ignore=[])
+elif args.task == 'task_5_ff_tvn':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca_ff/blca_ff_TvN_labels.csv',
+                            data_dir= args.data_root_dir,
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'normal_tissue':0, 'tumor_tissue':1},
+                            patient_strat= True,
+                            ignore=[])
+
 else:
     raise NotImplementedError
     

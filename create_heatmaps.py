@@ -181,10 +181,10 @@ if __name__ == '__main__':
 		feature_extractor = nn.DataParallel(feature_extractor, device_ids=device_ids).to('cuda:0')
 	else:
 		feature_extractor = feature_extractor.to(device)
-
+	
 	os.makedirs(exp_args.production_save_dir, exist_ok=True)
 	os.makedirs(exp_args.raw_save_dir, exist_ok=True)
-	blocky_wsi_kwargs = {'top_left': None, 'bot_right': None, 'patch_size': patch_size, 'step_size': patch_size, 
+	blocky_wsi_kwargs = {'top_left': None, 'bot_right': None, 'patch_size': patch_size, 'step_size': step_size, 
 	'custom_downsample':patch_args.custom_downsample, 'level': patch_args.patch_level, 'use_center_shift': heatmap_args.use_center_shift}
 
 	for i in range(len(process_stack)):

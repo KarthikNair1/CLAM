@@ -12,7 +12,7 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed (default: 1)')
 parser.add_argument('--k', type=int, default=10,
                     help='number of splits (default: 10)')
-parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal', 'task_2_histologic_subtype'])
+parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal', 'task_2_histologic_subtype', 'task_3_txn_subtype', 'task_4_upstage', 'task_5_ff_tvn'])
 parser.add_argument('--val_frac', type=float, default= 0.1,
                     help='fraction of labels for validation (default: 0.1)')
 parser.add_argument('--test_frac', type=float, default= 0.1,
@@ -33,11 +33,41 @@ if args.task == 'task_1_tumor_vs_normal':
 elif args.task == 'task_2_histologic_subtype':
     args.n_classes=2
     dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_histologic_subtype_labels.csv',
-                            data_dir= '/mnt/disks/msk/clam/blca',
+                            data_dir= '/mnt/disks/msk/clam/data_root_dir/blca',
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
                             label_dict = {'papillary':0, 'non-papillary':1},
+                            patient_strat= True,
+                            ignore=[])
+elif args.task == 'task_3_txn_subtype':
+    args.n_classes=5
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_txn_subtype_labels.csv',
+                            data_dir= '/mnt/disks/msk/clam/data_root_dir/blca',
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'Luminal Papillary': 0, 'Luminal Infiltrated': 1, 'Luminal': 2, 'Basal Squamous': 3, 'Neuronal': 4},
+                            patient_strat= True,
+                            ignore=[])
+elif args.task == 'task_4_upstage':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca/blca_upstaged_labels.csv',
+                            data_dir= '/mnt/disks/msk/clam/data_root_dir/blca',
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'not_upstaged':0, 'upstaged':1},
+                            patient_strat= True,
+                            ignore=[])
+elif args.task == 'task_5_ff_tvn':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = '/mnt/disks/msk/clam/data_root_dir/blca_ff/blca_ff_TvN_labels.csv',
+                            data_dir= '/mnt/disks/msk/clam/data_root_dir/blca_ff',
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'normal_tissue':0, 'tumor_tissue':1},
                             patient_strat= True,
                             ignore=[])
 

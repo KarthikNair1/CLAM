@@ -14,14 +14,14 @@ args:
 """
 class Attn_Net(nn.Module):
 
-    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
+    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1, dropout_p = 0.25):
         super(Attn_Net, self).__init__()
         self.module = [
             nn.Linear(L, D),
             nn.Tanh()]
 
         if dropout:
-            self.module.append(nn.Dropout(0.25))
+            self.module.append(nn.Dropout(dropout_p))
 
         self.module.append(nn.Linear(D, n_classes))
         
@@ -39,7 +39,7 @@ args:
     n_classes: number of classes 
 """
 class Attn_Net_Gated(nn.Module):
-    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
+    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1, dropout_p = 0.25):
         super(Attn_Net_Gated, self).__init__()
         self.attention_a = [
             nn.Linear(L, D),
@@ -48,8 +48,8 @@ class Attn_Net_Gated(nn.Module):
         self.attention_b = [nn.Linear(L, D),
                             nn.Sigmoid()]
         if dropout:
-            self.attention_a.append(nn.Dropout(0.25))
-            self.attention_b.append(nn.Dropout(0.25))
+            self.attention_a.append(nn.Dropout(dropout_p))
+            self.attention_b.append(nn.Dropout(dropout_p))
 
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
@@ -76,17 +76,17 @@ args:
 """
 class CLAM_SB(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, k_sample=8, n_classes=2,
-        instance_loss_fn=nn.CrossEntropyLoss(), subtyping=False):
+        instance_loss_fn=nn.CrossEntropyLoss(), subtyping=False, dropout_p = 0.25):
         super(CLAM_SB, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
         fc = [nn.Linear(size[0], size[1]), nn.ReLU()]
         if dropout:
-            fc.append(nn.Dropout(0.25))
+            fc.append(nn.Dropout(dropout_p))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 1, dropout_p = dropout_p)
         else:
-            attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1)
+            attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 1, dropout_p = dropout_p)
         fc.append(attention_net)
         self.attention_net = nn.Sequential(*fc)
         self.classifiers = nn.Linear(size[1], n_classes)

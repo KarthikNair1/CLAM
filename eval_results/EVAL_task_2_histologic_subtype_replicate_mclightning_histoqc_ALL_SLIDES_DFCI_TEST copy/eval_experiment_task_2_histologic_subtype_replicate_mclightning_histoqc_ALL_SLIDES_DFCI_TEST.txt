@@ -1,0 +1,1 @@
+{'task': 'task_2_histologic_subtype', 'split': 'all', 'save_dir': './eval_results/EVAL_task_2_histologic_subtype_replicate_mclightning_histoqc_ALL_SLIDES_DFCI_TEST', 'models_dir': './results/task_2_histologic_subtype_replicate_mclightning_100_s182', 'model_type': 'clam_sb', 'drop_out': True, 'model_size': 'small'}
